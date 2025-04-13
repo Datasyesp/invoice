@@ -30,7 +30,7 @@ export interface UserSettings {
     businessName: string
     email: string
     phone: string
-    gst: string
+    gst?: string
     address: string
   }
   invoiceSettings: {
@@ -294,6 +294,7 @@ export default function UserSettings() {
           tenant_id: tenantId,
           user_id: user.id,
         })
+        
       } else {
         // Create new settings
         await createUserSettings({
