@@ -1,7 +1,7 @@
 // hooks/useTokenRefresh.js
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../lib/supabaseClient' // Import the initialized Supabase client
+import { supabase } from '../../lib/supabaseClient'
 
 export function useTokenRefresh() {
   const [isRefreshing, setIsRefreshing] = useState(false)
