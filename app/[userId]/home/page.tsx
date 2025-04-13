@@ -67,7 +67,7 @@ interface DashboardLayoutProps {
   userId: string
 }
 
-{
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, userId }) => {
   const router = useRouter()
   const pathname = usePathname()
   const [activeTab, setActiveTab] = useState("dashboard")
@@ -77,7 +77,7 @@ interface DashboardLayoutProps {
   const [user, setUser] = useState<any>(null)
   const { theme, setTheme } = useTheme()
 
- const checkAuth = useCallback(async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const {
         data: { session },
@@ -87,10 +87,8 @@ interface DashboardLayoutProps {
         router.push("/login")
         return
       } else {
-        // Check for tenant_id in user metadata
         const tenantId = session.user.user_metadata?.tenant_id
 
-        // If user is logged in but accessing wrong tenant ID
         if (tenantId && tenantId !== userId && pathname.includes("/home")) {
           router.push(`/${tenantId}/home`)
           return
@@ -107,7 +105,6 @@ interface DashboardLayoutProps {
   useEffect(() => {
     checkAuth()
 
-    // Set up auth state change listener
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -168,7 +165,7 @@ interface DashboardLayoutProps {
       case "subscription":
         return <Subscription />
       default:
-        return children // Default to the children prop
+        return children
     }
   }, [activeTab, children])
 
@@ -226,9 +223,7 @@ function LoadingScreen() {
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-          >
-            <FileText className="h-12 w-12 text-navy-600 dark:text-navy-400" />
-          </motion.div>
+          />
         </motion.div>
         <motion.h2
           className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2"
@@ -266,7 +261,6 @@ function LoadingScreen() {
     </div>
   )
 }
-
 
 function Sidebar({
   activeTab,
