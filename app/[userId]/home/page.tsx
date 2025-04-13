@@ -53,8 +53,14 @@ interface PageProps {
 
 export default function Page({ params }: PageProps) {
   const resolvedParams = use(params)
-  return <DashboardLayout userId={resolvedParams.userId}>{/* Your page content */}</DashboardLayout>
+  return (
+    <DashboardLayout userId={resolvedParams.userId}>
+      {/* Your actual page content here */}
+      <div>Welcome to your dashboard!</div>
+    </DashboardLayout>
+  );
 }
+  
 
 interface DashboardLayoutProps {
   children: React.ReactNode
