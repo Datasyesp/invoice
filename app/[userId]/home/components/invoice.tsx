@@ -145,7 +145,8 @@ const getInvoices = async (tenantId: string): Promise<InvoiceListItem[]> => {
     data.map((invoice) => ({
       id: invoice.id,
       invoiceNumber: invoice.invoice_number,
-customerName: invoice.customer?.customerName ?? "Unknown",
+customerName: invoice.customer?.[0]?.customer_name ?? "Unknown",
+
 
 
       total: invoice.total,
