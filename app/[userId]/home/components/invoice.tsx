@@ -85,7 +85,6 @@ interface Invoice {
   created_at?: string
   updated_at?: string
 }
-
 interface CompanyDetails {
   companyName: string
   address: string
@@ -145,10 +144,7 @@ const getInvoices = async (tenantId: string): Promise<InvoiceListItem[]> => {
     data.map((invoice) => ({
       id: invoice.id,
       invoiceNumber: invoice.invoice_number,
-customerName: invoice.customer?.[0]?.customer_name ?? "Unknown",
-
-
-
+      customerName: invoice.customer ? invoice.customer.customer_name : "Unknown",
       total: invoice.total,
       dueDate: invoice.due_date,
       status: invoice.balance_amount > 0 ? "CREDIT" : "PAID",
@@ -923,9 +919,13 @@ function InvoiceList({
                   <TableCell>₹{invoice.total.toFixed(2)}</TableCell>
                   <TableCell>{new Date(invoice.dueDate).toLocaleDateString()}</TableCell>
                   <TableCell>
-                    <Badge variant={invoice.status === "PAID" ? "success" : "destructive"} className="bg-opacity-10">
-                      {invoice.status}
-                    </Badge>
+                  <Badge
+  variant={invoice.status === "PAID" ? "default" : "destructive"}
+  className="bg-green-500/10 text-green-700 dark:text-green-400"
+>
+  {invoice.status}
+</Badge>
+
                   </TableCell>
                   <TableCell>
                     <TooltipProvider>
