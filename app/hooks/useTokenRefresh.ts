@@ -11,7 +11,7 @@ export function useTokenRefresh() {
     const refreshToken = async () => {
       setIsRefreshing(true)
       try {
-        const session = supabase.auth.session() // Get the current session
+        const { data: { session } } = await supabase.auth.getSession()
 
         if (!session) {
           // If no session exists, redirect to login
@@ -24,7 +24,7 @@ export function useTokenRefresh() {
 
         if (error) {
           // If token refresh fails, log out the user
-          supabase.auth.signOut()
+          await supabase.auth.signOut()
           router.push('/login')
         } else {
           // Successfully refreshed the token
