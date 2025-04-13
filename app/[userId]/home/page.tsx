@@ -67,7 +67,7 @@ interface DashboardLayoutProps {
   userId: string
 }
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, userId }) => {
+{
   const router = useRouter()
   const pathname = usePathname()
   const [activeTab, setActiveTab] = useState("dashboard")
