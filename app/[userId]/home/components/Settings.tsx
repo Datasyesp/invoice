@@ -34,7 +34,7 @@ export interface UserSettings {
     address: string
   }
   invoiceSettings: {
-    prefix: string
+    prefix?: string
     nextNumber: number
   }
   tenant_id: string
