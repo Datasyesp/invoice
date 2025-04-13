@@ -45,13 +45,11 @@ import { Reports } from "./components/Reports"
 import { Subscription } from "./components/Subscription"
 import UserSettings from "./components/Settings" // Assuming the file is saved as user-settings.tsx
 
-export default function DashboardLayout({
-  children,
-  userId,
-}: {
+interface DashboardLayoutProps {
   children: React.ReactNode
   userId: string
-}) {
+}
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, userId }) => {
   const router = useRouter()
   const pathname = usePathname()
   const [activeTab, setActiveTab] = useState("dashboard") // Default to dashboard
@@ -503,3 +501,4 @@ function UserMenu({ user }: { user: any }) {
     </DropdownMenu>
   )
 }
+export default DashboardLayout
