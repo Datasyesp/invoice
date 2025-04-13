@@ -144,10 +144,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, userId }) =
 
   useEffect(() => {
     const pathParts = pathname.split("/")
-    const currentTab = pathParts[pathParts.length - 1]
-    setActiveTab(currentTab === "home" ? "dashboard" : currentTab)
+    const current = pathParts[pathParts.length - 1]
+  
+    // Always show 'dashboard' tab when on 'home'
+    if (current === "home") {
+      setActiveTab("dashboard")
+    } else {
+      setActiveTab(current)
+    }
   }, [pathname])
-
+  
   const renderContent = useMemo(() => {
     switch (activeTab) {
       case "dashboard":
@@ -362,7 +368,7 @@ function SidebarButton({
   tab,
   activeTab,
   setActiveTab,
-  userId,
+  userId
 }: {
   icon: React.ElementType
   label: string
@@ -371,13 +377,9 @@ function SidebarButton({
   setActiveTab: (tab: string) => void
   userId: string
 }) {
-  const router = useRouter()
-
   const handleClick = () => {
     setActiveTab(tab)
-    if (userId) {
-      router.push(`/${userId}/${tab === "dashboard" ? "home" : tab}`)
-    }
+    // Do not push to new route — keep path as /home
   }
 
   return (
@@ -386,10 +388,8 @@ function SidebarButton({
         <Button
           variant="ghost"
           size="icon"
-          className={`h-10 w-10 rounded-lg ${
-            activeTab === tab ? "bg-gray-800 text-white" : "text-gray-400 hover:bg-gray-800 hover:text-white"
-          }`}
           onClick={handleClick}
+          className={`h-10 w-10 rounded-xl p-0 ${activeTab === tab ? "bg-gray-700 text-white" : "text-gray-400"}`}
         >
           <Icon className="h-5 w-5" />
           <span className="sr-only">{label}</span>
