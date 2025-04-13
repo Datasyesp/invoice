@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { use } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import {
   FileText,
@@ -41,25 +42,35 @@ import { Products } from "./components/Products"
 import { Invoice } from "./components/invoice"
 import { Customers } from "./components/Customers"
 import { Reports } from "./components/Reports"
-
 import { Subscription } from "./components/Subscription"
-import UserSettings from "./components/Settings" // Assuming the file is saved as user-settings.tsx
+import UserSettings from "./components/Settings"
+
+interface PageProps {
+  params: Promise<{
+    userId: string
+  }>
+}
+
+export default function Page({ params }: PageProps) {
+  const resolvedParams = use(params)
+  return <DashboardLayout userId={resolvedParams.userId}>{/* Your page content */}</DashboardLayout>
+}
 
 interface DashboardLayoutProps {
   children: React.ReactNode
   userId: string
 }
+
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, userId }) => {
   const router = useRouter()
   const pathname = usePathname()
-  const [activeTab, setActiveTab] = useState("dashboard") // Default to dashboard
+  const [activeTab, setActiveTab] = useState("dashboard")
   const [searchQuery, setSearchQuery] = useState("")
   const [isOnline, setIsOnline] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
   const { theme, setTheme } = useTheme()
 
-  // Check authentication with Supabase
   const checkAuth = useCallback(async () => {
     try {
       const {
@@ -70,10 +81,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, userId }) =
         router.push("/login")
         return
       } else {
-        // Check for tenant_id in user metadata
         const tenantId = session.user.user_metadata?.tenant_id
 
-        // If user is logged in but accessing wrong tenant ID
         if (tenantId && tenantId !== userId && pathname.includes("/home")) {
           router.push(`/${tenantId}/home`)
           return
@@ -90,7 +99,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, userId }) =
   useEffect(() => {
     checkAuth()
 
-    // Set up auth state change listener
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -151,7 +159,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, userId }) =
       case "subscription":
         return <Subscription />
       default:
-        return children // Default to the children prop
+        return children
     }
   }, [activeTab, children])
 
@@ -209,9 +217,7 @@ function LoadingScreen() {
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-          >
-            {/* <FileText className="h-12 w-12 text-navy-600 dark:text-navy-400" /> */}
-          </motion.div>
+          />
         </motion.div>
         <motion.h2
           className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2"
@@ -254,7 +260,11 @@ function Sidebar({
   activeTab,
   setActiveTab,
   userId,
-}: { activeTab: string; setActiveTab: (tab: string) => void; userId: string }) {
+}: {
+  activeTab: string
+  setActiveTab: (tab: string) => void
+  userId: string
+}) {
   return (
     <div className="flex h-screen w-16 flex-col items-center space-y-8 bg-[#212b36] py-4">
       <TooltipProvider>
@@ -360,7 +370,6 @@ function SidebarButton({
   const handleClick = () => {
     setActiveTab(tab)
     if (userId) {
-      // Ensure we're using the tenant ID from the URL for consistent routing
       router.push(`/${userId}/${tab === "dashboard" ? "home" : tab}`)
     }
   }
@@ -400,9 +409,7 @@ function Navbar({
   company: { name: string; logo?: string }
   user: any
 }) {
-  const [notifications, setNotifications] = React.useState([
-    { type: "new_invoice", message: "New invoice created: #INV-001" },
-  ])
+  const [notifications] = React.useState([{ type: "new_invoice", message: "New invoice created: #INV-001" }])
   const { theme, setTheme } = useTheme()
 
   return (
@@ -410,13 +417,9 @@ function Navbar({
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center flex-1">
           <h1 className="text-xl font-semibold mr-4 dark:text-white">{company.name}</h1>
-      
         </div>
         <div className="flex items-center space-x-4">
-       
-          
           {isOnline ? <Wifi className="h-5 w-5 text-green-500" /> : <WifiOff className="h-5 w-5 text-red-500" />}
-
           <UserMenu user={user} />
         </div>
       </div>
@@ -501,4 +504,3 @@ function UserMenu({ user }: { user: any }) {
     </DropdownMenu>
   )
 }
-export default DashboardLayout
