@@ -145,8 +145,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, userId }) =
   useEffect(() => {
     const pathParts = pathname.split("/")
     const currentTab = pathParts[pathParts.length - 1]
-    setActiveTab(currentTab === "home"?)
-  })
+    setActiveTab(currentTab === "home" ? "dashboard" : currentTab)
+  }, [pathname])
 
   const renderContent = useMemo(() => {
     switch (activeTab) {
