@@ -36,13 +36,13 @@ import { useTheme } from "next-themes"
 import { supabase } from "@/lib/supabaseClient"
 
 // Import your components
-import { Dashboard } from "./components/dashboard"
-import { Products } from "./components/products"
-import { Invoice } from "./components/invoice"
-import { Customers } from "./components/customers"
-import { Reports } from "./components/reports"
+import { Dashboard } from "./components/Dashboard"
+import { Products } from "./components/Products"
+import { Invoice } from "./components/Invoice"
+import { Customers } from "./components/Customers"
+import { Reports } from "./components/Reports"
 
-import { Subscription } from "./components/subscription"
+import { Subscription } from "./components/Subscription"
 import UserSettings from "./components/Settings" // Assuming the file is saved as user-settings.tsx
 
 export default function DashboardLayout({
