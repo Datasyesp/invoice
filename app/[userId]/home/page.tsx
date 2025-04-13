@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { use } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import {
   FileText,
@@ -37,46 +36,32 @@ import { useTheme } from "next-themes"
 import { supabase } from "@/lib/supabaseClient"
 
 // Import your components
-import { Dashboard } from "./components/Dashboard"
-import { Products } from "./components/Products"
+import { Dashboard } from "./components/dashboard"
+import { Products } from "./components/products"
 import { Invoice } from "./components/invoice"
-import { Customers } from "./components/Customers"
-import { Reports } from "./components/Reports"
-import { Subscription } from "./components/Subscription"
-import UserSettings from "./components/Settings"
+import { Customers } from "./components/customers"
+import { Reports } from "./components/reports"
 
-interface PageProps {
-  params: Promise<{
-    userId: string
-  }>
-}
+import { Subscription } from "./components/subscription"
+import UserSettings from "./components/Settings" // Assuming the file is saved as user-settings.tsx
 
-export default function Page({ params }: PageProps) {
-  const resolvedParams = use(params)
-  return (
-    <DashboardLayout userId={resolvedParams.userId}>
-      {/* Your actual page content here */}
-      <div>Welcome to your dashboard!</div>
-    </DashboardLayout>
-  );
-}
-  
-
-interface DashboardLayoutProps {
+export default function DashboardLayout({
+  children,
+  userId,
+}: {
   children: React.ReactNode
   userId: string
-}
-
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, userId }) => {
+}) {
   const router = useRouter()
   const pathname = usePathname()
-  const [activeTab, setActiveTab] = useState("dashboard")
+  const [activeTab, setActiveTab] = useState("dashboard") // Default to dashboard
   const [searchQuery, setSearchQuery] = useState("")
   const [isOnline, setIsOnline] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
   const { theme, setTheme } = useTheme()
 
+  // Check authentication with Supabase
   const checkAuth = useCallback(async () => {
     try {
       const {
@@ -87,8 +72,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, userId }) =
         router.push("/login")
         return
       } else {
+        // Check for tenant_id in user metadata
         const tenantId = session.user.user_metadata?.tenant_id
 
+        // If user is logged in but accessing wrong tenant ID
         if (tenantId && tenantId !== userId && pathname.includes("/home")) {
           router.push(`/${tenantId}/home`)
           return
@@ -105,6 +92,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, userId }) =
   useEffect(() => {
     checkAuth()
 
+    // Set up auth state change listener
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -142,12 +130,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, userId }) =
     }
   }, [])
 
-useEffect(() => {
-  const pathParts = pathname.split("/");
+  useEffect(() => {
+    const pathParts = pathname.split("/")
     const currentTab = pathParts[pathParts.length - 1]
     setActiveTab(currentTab === "home" ? "dashboard" : currentTab)
   }, [pathname])
-
 
   const renderContent = useMemo(() => {
     switch (activeTab) {
@@ -166,7 +153,7 @@ useEffect(() => {
       case "subscription":
         return <Subscription />
       default:
-        return children
+        return children // Default to the children prop
     }
   }, [activeTab, children])
 
@@ -224,7 +211,9 @@ function LoadingScreen() {
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-          />
+          >
+            <FileText className="h-12 w-12 text-navy-600 dark:text-navy-400" />
+          </motion.div>
         </motion.div>
         <motion.h2
           className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2"
@@ -267,11 +256,7 @@ function Sidebar({
   activeTab,
   setActiveTab,
   userId,
-}: {
-  activeTab: string
-  setActiveTab: (tab: string) => void
-  userId: string
-}) {
+}: { activeTab: string; setActiveTab: (tab: string) => void; userId: string }) {
   return (
     <div className="flex h-screen w-16 flex-col items-center space-y-8 bg-[#212b36] py-4">
       <TooltipProvider>
@@ -377,6 +362,7 @@ function SidebarButton({
   const handleClick = () => {
     setActiveTab(tab)
     if (userId) {
+      // Ensure we're using the tenant ID from the URL for consistent routing
       router.push(`/${userId}/${tab === "dashboard" ? "home" : tab}`)
     }
   }
@@ -416,7 +402,9 @@ function Navbar({
   company: { name: string; logo?: string }
   user: any
 }) {
-  const [notifications] = React.useState([{ type: "new_invoice", message: "New invoice created: #INV-001" }])
+  const [notifications, setNotifications] = React.useState([
+    { type: "new_invoice", message: "New invoice created: #INV-001" },
+  ])
   const { theme, setTheme } = useTheme()
 
   return (
@@ -424,9 +412,54 @@ function Navbar({
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center flex-1">
           <h1 className="text-xl font-semibold mr-4 dark:text-white">{company.name}</h1>
+          <div className="relative flex-1 max-w-xl">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search invoices..."
+              className="pl-8 rounded-full dark:bg-gray-700 dark:text-white"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
         </div>
         <div className="flex items-center space-x-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="rounded-full"
+          >
+            {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            <span className="sr-only">Toggle theme</span>
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon" className="relative rounded-full">
+                <Bell className="h-5 w-5" />
+                {notifications.length > 0 && (
+                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-xs text-white flex items-center justify-center">
+                    {notifications.length}
+                  </span>
+                )}
+                <span className="sr-only">Notifications</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80 rounded-lg">
+              <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {notifications.map((notification, index) => (
+                <DropdownMenuItem key={index}>
+                  <span className="font-medium">
+                    {notification.type === "new_invoice" ? "🆕" : notification.type === "payment_received" ? "💰" : "⚠️"}
+                  </span>
+                  <span className="ml-2">{notification.message}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           {isOnline ? <Wifi className="h-5 w-5 text-green-500" /> : <WifiOff className="h-5 w-5 text-red-500" />}
+
           <UserMenu user={user} />
         </div>
       </div>
