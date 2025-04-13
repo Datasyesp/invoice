@@ -38,7 +38,7 @@ import { supabase } from "@/lib/supabaseClient"
 // Import your components
 import { Dashboard } from "./components/Dashboard"
 import { Products } from "./components/Products"
-import { Invoice } from "./components/Invoice"
+import { Invoice } from "./components/invoice"
 import { Customers } from "./components/Customers"
 import { Reports } from "./components/Reports"
 
